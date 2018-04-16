@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.present.student.dao.StudentDao">
+    <resultMap type="com.present.student.bean.Student" id="studentMap">
+        <!-- 学生id -->
+        <id column="id" property="id"/>
+        <!-- 学生名称 -->
+        <result column="name" property="name"/>
+        <!-- 暂时隐藏这个字段  密码 -->
+        <result column="password" property="password"/>
+        <!-- 手机号 -->
+        <result column="phone" property="phone"/>
+        <!-- 性别 -->
+        <result column="sexual" property="sexual"/>
+        <!-- 头像 -->
+        <result column="portrait_url" property="portraitUrl"/>
+        <!-- 手机唯一标示 -->
+        <result column="imel" property="imel"/>
+        <!-- 邮箱 -->
+        <result column="mail" property="mail"/>
+        <!-- 学号 -->
+        <result column="student_number" property="studentNumber"/>
+        <!--班级id-->
+        <result column="class_id" property="classId"/>
+        <!--学校id-->
+        <result column="school_id" property="schoolId"/>
+
+    </resultMap>
+
+    <!-- 将数据插入数据库中 -->
+    <insert id="insert" parameterType="com.present.student.bean.Student">
+        INSERT INTO
+        student (
+        id,
+        name,
+        password,
+        phone,
+        sexual,
+        portrait_url,
+        imel,
+        mail,
+        student_number,
+        school_id,
+        class_id)
+        VALUES (
+        #{id},
+        #{name},
+        #{password},
+        #{phone},
+        #{sexual},
+        #{portraitUrl},
+        #{imel},
+        #{mail},
+        #{studentNumber},
+        #{schoolId},
+        #{classId}
+        )
+    </insert>
+
+    <!-- 根据key查找数据库中信息 -->
+    <select id="queryByKey" resultMap="studentMap">
+        SELECT
+        *
+        FROM
+        student
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <!-- 根据key更新数据库中信息 -->
+    <update id="updateByKey">
+        Update
+        student
+        <set>
+            <if test=" name != null ">
+                name = #{name},
+            </if>
+            <if test=" password != null ">
+                password = #{password},
+            </if>
+            <if test=" phone != null ">
+                phone = #{phone},
+            </if>
+            <if test=" sexual != null ">
+                sexual = #{sexual},
+            </if>
+            <if test=" portraitUrl != null ">
+                portrait_url = #{portraitUrl},
+            </if>
+            <if test=" imel != null ">
+                imel = #{imel},
+            </if>
+            <if test=" mail != null ">
+                mail = #{mail},
+            </if>
+            <if test=" studentNumber != null ">
+                student_number = #{studentNumber},
+            </if>
+            <if test=" schoolId != null ">
+                school_id = #{schoolId},
+            </if>
+            <if test=" classId != null ">
+                class_id= #{classId}
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 根据Key删除数据库中信息 -->
+    <delete id="deleteByKey">
+        DELETE FROM
+        student
+        <where>
+            id = #{id}
+        </where>
+    </delete>
+
+    <!-- mybatis批量插入数据-->
+    <insert id="insertUserList" parameterType="java.util.List">
+        INSERT
+        INTO
+        student (student_number, name)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.studentNumber}, #{item.name})
+        </foreach>
+    </insert>
+
+    <!--插入密码-->
+    <update id="updatePassword">
+        UPDATE
+        student
+        <set>
+            password = #{password}
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+
+    <!-- 账户是否有效-->
+    <select id="isValidUser" resultType="java.lang.String">
+        SELECT
+        id
+        FROM
+        student
+        <where>
+            student_number = #{studentNumber}
+            AND
+            password= #{password}
+            AND
+            school_id=#{schoolId}
+        </where>
+    </select>
+
+
+    <select id="studentLogin" resultMap="studentMap">
+        SELECT
+        id,
+        name,
+        phone,
+        sexual,
+        portrait_url,
+        imel,
+        mail,student_number,
+        school_id
+        FROM
+        student
+        <where>
+            student_number = #{studentNumber}
+            AND
+            password= #{password}
+            AND
+            school_id=#{schoolId}
+        </where>
+    </select>
+
+    <!-- @param studentId     学生id
+     * @param password      密码
+     * @param phone         手机
+     * @param sexual        性别
+     * @param imel
+     * @param mail-->
+
+    <update id="submitStudentInfo">
+        UPDATE
+        student
+        <set>
+            <if test=" password != null ">
+                password = #{password},
+            </if>
+            <if test=" phone != null ">
+                phone = #{phone},
+            </if>
+            <if test=" sexual != null ">
+                sexual = #{sexual},
+            </if>
+            <if test=" imel != null ">
+                imel = #{imel},
+            </if>
+            <if test=" mail != null ">
+                mail = #{mail}
+            </if>
+        </set>
+        <where>
+            id = #{studentId}
+        </where>
+    </update>
+
+    <select id="studentLoginByPhone" resultMap="studentMap">
+        SELECT
+        *
+        FROM
+        student
+        <where>
+            phone = #{phone}
+            AND
+            password= #{password}
+        </where>
+    </select>
+
+
+    <!-- 根据手机号判断账户是否有效 -->
+    <select id="queryByPhone" resultType="java.lang.Integer">
+        SELECT
+        COUNT(id)
+        FROM
+        student
+        <where>
+            phone=#{phone}
+        </where>
+    </select>
+
+    <!-- 根据手机号查询用户id -->
+    <select id="queryByPhoneForId" resultType="java.lang.String">
+        SELECT
+        id
+        FROM
+        student
+        <where>
+            phone=#{phone}
+        </where>
+    </select>
+
+    <!-- 根据id查询用户imel -->
+    <select id="queryByIdForUniqueName" resultType="java.lang.String">
+        SELECT
+        imel
+        FROM
+        student
+        <where>
+            id=#{id}
+        </where>
+    </select>
+
+    <!-- 根据id删除用户imel -->
+    <update id="deleteByIdForUniqueName">
+        UPDATE
+        student
+        <set>
+            <if test=" imel != null ">
+                imel = #{imel}
+            </if>
+        </set>
+        <where>
+            id=#{id}
+        </where>
+    </update>
+
+    <update id="updatePortrait">
+        UPDATE
+        student
+        <set>
+            <if test=" portraitPath != null ">
+                portrait_url = #{portraitPath}
+            </if>
+        </set>
+        <where>
+            phone = #{phone}
+        </where>
+    </update>
+
+
+</mapper>

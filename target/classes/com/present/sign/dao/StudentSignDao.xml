@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.present.sign.dao.StudentSignDao">
+    <resultMap type="com.present.sign.bean.StudentSign" id="studentSignMap">
+        <!-- 学生签到的id -->
+        <id column="id" property="id"/>
+        <!-- 课程发起签到id -->
+        <result column="course_sign_id" property="courseSignId"/>
+        <!-- 学生id -->
+        <result column="student_sign_id" property="studentId"/>
+        <!-- 签到时间 -->
+        <result column="sign_time" property="signTime"/>
+        <!-- 签到状态 -->
+        <result column="sign_state" property="signState"/>
+    </resultMap>
+
+    <resultMap type="com.present.sign.dto.StudentCourseSignDto" id="studentCourseSignMap">
+        <result column="name" property="name"/>
+        <!-- 签到时间 -->
+        <result column="student_number" property="studentNumber"/>
+        <!-- 签到状态 -->
+        <result column="sign_state" property="signState"/>
+
+        <result column="id" property="studentId"/>
+    </resultMap>
+
+
+    <resultMap type="com.present.sign.dto.CourseSignInfoDto" id="courseSignInfoMap">
+        <!--签到时间-->
+        <result column="sign_time" property="signTime"/>
+        <!-- 签到状态 -->
+        <result column="sign_state" property="signState"/>
+    </resultMap>
+
+
+    <!-- 将数据插入数据库中 -->
+    <insert id="insert" parameterType="com.present.sign.bean.StudentSign">
+        INSERT INTO
+        student_sign (
+        id,
+        course_sign_id,
+        student_id,
+        sign_time,
+        sign_state)
+        VALUES (
+        #{id},
+        #{courseSignId},
+        #{studentId},
+        #{signTime},
+        #{signState})
+    </insert>
+
+    <!-- 根据key查找数据库中信息 -->
+    <select id="queryByKey" resultMap="studentSignMap">
+        SELECT
+        *
+        FROM
+        student_sign
+        <where>
+            id = #{id}
+        </where>
+    </select>
+
+    <!-- 根据key更新数据库中信息 -->
+    <update id="updateByKey">
+        Update
+        student_sign
+        <set>
+            <if test=" courseSignId != null ">
+                course_sign_id = #{courseSignId},
+            </if>
+            <if test=" studentId != null ">
+                student_sign_id = #{studentId},
+            </if>
+            <if test=" signTime != null ">
+                sign_time = #{signTime},
+            </if>
+            <if test=" signState != null ">
+                sign_state = #{signState}
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <!-- 根据Key删除数据库中信息 -->
+    <delete id="deleteByKey">
+        DELETE FROM
+        student_sign
+        <where>
+            id = #{id}
+        </where>
+    </delete>
+
+    <!--修改某个学生的签到状态-->
+    <update id="changeStudentSignState">
+
+        Update
+        student_sign
+        <set>
+            <if test=" signState != null ">
+                sign_state = #{signState},
+            </if>
+            <if test=" signTime !=null">
+                sign_time=#{signTime}
+            </if>
+        </set>
+        <where>
+            course_sign_id = #{courseSignId}
+            AND
+            student_id= #{studentId}
+        </where>
+    </update>
+
+
+    <!-- 学生更具课程id和 学生id获取某门课程的所有签到信息-->
+    <select id="queryCourseSignInfoDto" resultMap="courseSignInfoMap">
+        SELECT
+        sign_state,
+        sign_time
+        FROM
+        student_sign
+        <where>
+            course_sign_id IN
+            (
+            SELECT
+            id
+            FROM
+            course_sign
+            <where>
+                course_id = 1
+            </where>
+            )
+            AND student_id =1
+            ORDER BY
+            sign_time
+        </where>
+    </select>
+
+
+    <!-- 查询 -->
+    <select id="getCourseSignInforList" resultMap="studentCourseSignMap">
+        SELECT
+        student_number,
+        name,
+        sign_state,
+        student.id
+        FROM
+        student_sign
+        INNER JOIN student ON student.id = student_sign.student_id
+        <where>
+            course_sign_id = #{courseSignId}
+            AND
+            student.class_id=#{classId}
+        </where>
+        ORDER BY student_number ASC
+    </select>
+
+
+    <!-- 查询 -->
+    <select id="queryStudentSignDtoByCourseSignId" resultMap="studentCourseSignMap">
+        SELECT
+        student_number,
+        name,
+        sign_state,
+        student.id
+        FROM
+        student_sign
+        INNER JOIN student ON student.id = student_sign.student_id
+        <where>
+            course_sign_id = #{courseSignId}
+        </where>
+        ORDER BY student_number ASC
+    </select>
+
+
+    <!-- 查询 -->
+    <select id="getAbsenceStudentList" resultMap="studentCourseSignMap">
+        SELECT
+        student_number,
+        name,
+        sign_state,
+        student.id
+        FROM
+        student_sign
+        INNER JOIN student ON student.id = student_sign.student_id
+        <where>
+            course_sign_id = #{courseSignId}
+            AND
+            student_sign.sign_state="3"
+        </where>
+        ORDER BY student_number ASC
+    </select>
+
+
+</mapper>

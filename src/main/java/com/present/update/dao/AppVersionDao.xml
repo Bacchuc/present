@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://www.mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.present.update.dao.AppVersionDao">
+    <resultMap type="com.present.update.bean.AppVersion" id="appVersionMap">
+        <!-- 版本id -->
+        <id column="id" property="id"/>
+        <!-- 版本平台：android -->
+        <result column="platform" property="platform"/>
+        <!-- 版本名称 -->
+        <result column="versionName" property="versionName"/>
+        <!-- 版本号 -->
+        <result column="versionCode" property="versionCode"/>
+        <!-- 是否有新版本 有为1 没有为0 -->
+        <result column="hasNewVersion" property="hasNewVersion"/>
+        <!-- 是否需要强制升级 需要为1 不需要为0当客户端的版本无法在服务器所存的几个版本中查找时则需要强制更新 -->
+        <result column="must" property="must"/>
+        <!-- 升级信息 -->
+        <result column="upGradeInfo" property="upGradeInfo"/>
+        <!-- app最新版本地址 -->
+        <result column="updateUrl" property="updateUrl"/>
+        <!-- 版本创建日期 -->
+        <result column="createDate" property="createDate"/>
+
+    </resultMap>
+
+    <!-- 根据key查找数据库中信息 -->
+    <select id="seleteVersionNameByVersionName" resultMap="appVersionMap">
+        SELECT
+        *
+        FROM
+        app_version
+        <where>
+            versionName = #{versionName}
+        </where>
+    </select>
+</mapper>
